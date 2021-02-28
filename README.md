@@ -23,6 +23,7 @@ This is the Pulsar Timing and d-Dispersion analysis of Vela Pulsar. I data file 
 - Similar analysis can be done for the data in other column. To observe correlated signal between the two halves of the telescope, you may first compute the Fourier transform of each set of 512 points taken separately from the two columns and multiply (channel-wise) the spectrum of N by the complex conjugate of spectrum of S. And then follow steps 4 onward, for this cross-power-spectrum.
 
 - Once you have such 2-d data (dynamic spectrum), one can fold it at the pulsar period, and also dedisperse it to obtain average profile. One also estimate the pulsar period and dispersion measure separately. You may also estimate the amount of broadening of the pulse due to interstellar scattering.  
-=========================================Results ==========================================================
+
+=========================================Results =======================================================
 
 I do not think I have the liberty to put the data files here. I will be uplaoding the end result of pulsar after dedispersion and before that in the form of a picture. 
