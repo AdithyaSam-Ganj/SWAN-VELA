@@ -2,7 +2,7 @@
 Vela  Pulsar timing from data provided by SWAN (Sky Watch Array Network - RRI)
 This is the Pulsar Timing and d-Dispersion analysis of Vela Pulsar. I data file can be obtained if people are taking part in the SWAN imaging challenge conducted by RRI every year. 
 
-==================================================Data File Format=============================================================================================
+==================================================Data File Format===============================================================
 - ascii files
 - one second worth of data of vela pulsar 
 - 2 columns of data representing N and S array seperately 
