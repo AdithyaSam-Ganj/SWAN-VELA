@@ -1,0 +1,114 @@
+Actual Code 
+
+import numpy as np 
+import pandas as pd 
+import math as mat
+from google.colab import drive
+drive.mount("/content/drive", force_remount=True)
+
+
+lastint = 0 #this is the initial parameter 
+with open("/content/drive/My Drive/Vela/Vela_data.txt") as somefile:
+    t_length = 0
+    for line in somefile:
+        t_length = t_length+1
+t_length = int(t_length/30720)
+av_power_cross_product = np.zeros((t_length,256))
+
+def PS(ls):
+    fouriert_n = np.fft.fft(ls)
+    fouriert_n = fouriert_n[0:256]
+    fouriert_n_m =(abs(fouriert_n)*abs(fouriert_n))
+    return fouriert_n_m
+  
+def PS_new(ls,ps):
+    fouriert_n = np.fft.fft(ls)
+    fouriert_s = np.fft.fft(ps)
+    fouriert_n = fouriert_n[0:256]
+    fouriert_s = fouriert_s[0:256]
+    fouriert_f = fouriert_n*np.conj(fouriert_s)
+    fouriert_n_m =(abs(fouriert_f)*abs(fouriert_f))
+    return fouriert_n_m
+    
+def extract_data(file):
+    n_data=[]
+    s_data=[]
+    for i in range(512):
+        result = file.readline()
+        n_data.append(int(result.rstrip().rsplit(" ")[1]))
+        s_data.append(int(result.rstrip().rsplit(" ")[0]))
+    return n_data, s_data
+    
+av_power_n = np.zeros((t_length,256))
+av_power_s = np.zeros((t_length,256))
+av_power_cross_product = np.zeros((t_length,256))
+flag = False
+with open("/content/drive/My Drive/Vela/Vela_data.txt") as somefile:
+    for j in range(t_length):
+        powers = np.zeros(256)
+        powers_s = np.zeros(256)
+        powers_n = np.zeros(256)        
+        if flag == True:
+            break
+        for z in range(60):
+            myres_n,myres_s = extract_data(somefile)
+            k_c = PS_new(myres_n,myres_s)
+            powers += np.array(k_c)
+            k_n = PS(myres_n)
+            powers_n += np.array(k_n)
+            k_s = PS(myres_s)
+            powers_s += np.array(k_s)
+        av = powers/60
+        av_power_cross_product[j] = av
+        av = powers_n/60
+        av_power_n[j] = av
+        av = powers_s/60
+        av_power_s[j] = av
+av_power_f = av_power_s+av_power_n+av_power_cross_product  
+
+import matplotlib.pyplot as plt
+av_power_f = av_power_f.transpose()
+plt.matshow(av_power_f)
+plt.show()
+
+frequency = np.linspace(334.75,326.5,256)
+arrival = []
+s = 800
+
+f = 0
+
+t_resloution = 0.000918
+for i in np.arange(100,150):
+    arrival.append((1/(frequency[f+i])**2,(s+np.argmax(av_power_f[f+i,s:s+100]))*0.000918))
+arrival = np.asarray(arrival)
+
+
+def linear(x,m,c):
+    return m*x+c
+
+z= np.polyfit(arrival[:,0],arrival[:,1],1)
+p = np.poly1d(z)
+
+t = np.asarray(p(arrival[:,0]))
+t0 = p(0)
+
+plt.figure(3)
+plt.plot(arrival[:,0],t)
+plt.ylabel('time of arrival')
+plt.xlabel('1/frequency^2')
+plt.plot(arrival[:,0],arrival[:,1],'bo')
+print(z)
+
+av_power_de = np.zeros((256,1000))
+#code to get the dedisperced stuff 
+for i in range(256):
+    for j in range(1000):
+        av_power_de[i][j]=av_power_f[i][j+i-1000]
+plt.matshow(av_power_de)
+plt.show()
+
+av_power_de_de = np.zeros(1000)
+for j in range(1000):
+    for i in range(60):
+        av_power_de_de[j]+=av_power_de[i+100][j]
+plt.plot(range(600),av_power_de_de[100:700])
